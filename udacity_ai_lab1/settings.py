@@ -12,37 +12,42 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv('blobstorage.env')
 
 
+setting = 1
+
+if setting == 0:
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-#SECRET_KEY = "django-insecure-chd(4uv)us+d5x+z+2=c52tlmyw5d8mjvvt^edsreyculb^w*o"
+    SECRET_KEY = "django-insecure-chd(4uv)us+d5x+z+2=c52tlmyw5d8mjvvt^edsreyculb^w*o"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-#DEBUG = True
+    DEBUG = True
 
-#ALLOWED_HOSTS = []
+    ALLOWED_HOSTS = []
 
-
-SECRET_KEY = os.getenv('SECRET_KEY')
-CSRF_TRUSTED_ORIGINS = ['https://udacityboardingkiosk.azurewebsites.net','https://*.127.0.0.1']
-ALLOWED_HOSTS = [os.environ['WEBSITE_HOSTNAME']] if 'WEBSITE_HOSTNAME' in os.environ else []
-conn_str = os.environ['AZURE_POSTGRESQL_CONNECTIONSTRING']
-conn_str_params = {pair.split('=')[0]: pair.split('=')[1] for pair in conn_str.split(' ')}
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': conn_str_params['dbname'],
-        'HOST': conn_str_params['host'],
-        'USER': conn_str_params['user'],
-        'PASSWORD': conn_str_params['password'],
+else:
+    SECRET_KEY = os.getenv('SECRET_KEY')
+    CSRF_TRUSTED_ORIGINS = ['https://udacityboardingkiosk.azurewebsites.net','https://*.127.0.0.1']
+    ALLOWED_HOSTS = [os.environ['WEBSITE_HOSTNAME']] if 'WEBSITE_HOSTNAME' in os.environ else []
+    conn_str = os.environ['AZURE_POSTGRESQL_CONNECTIONSTRING']
+    conn_str_params = {pair.split('=')[0]: pair.split('=')[1] for pair in conn_str.split(' ')}
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': conn_str_params['dbname'],
+            'HOST': conn_str_params['host'],
+            'USER': conn_str_params['user'],
+            'PASSWORD': conn_str_params['password'],
+        }
     }
-}
 
 
 
