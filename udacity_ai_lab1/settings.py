@@ -16,12 +16,16 @@ from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-load_dotenv('blobstorage.env')
+
 
 
 setting = 1
 
 if setting == 0:
+
+    load_dotenv('blobstorage.env')
+    load_dotenv('formrecognizer.env')
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
@@ -60,7 +64,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    'boarding_kiosk'
+    'boarding_kiosk',
+    'widget_tweaks'
 ]
 
 MIDDLEWARE = [

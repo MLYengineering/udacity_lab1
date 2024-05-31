@@ -40,9 +40,10 @@ body, html {
 <div class="background">
     <div class="container">
         <!-- Hier kannst du deine Inhalte einfügen -->
-        <h1>Welcome to Udacity Airlines</h1>
-        <p>Please follow the instructions for check in</p>
-        <a href='{% url 'boardingpass' %}' class="btn btn-outline-primary" style="background:white;color:#1b1469;border-color:#1b1469" role="button" >Start process</a>
+        <h1>Verification result</h1>
+        <p>{{ message }}</p><br><br>
+
+        <a href='{% url 'index' %}' class="btn btn-outline-primary" style="background:white;color:#1b1469;border-color:#1b1469" role="button" >Start again</a>
 
 
     </div>

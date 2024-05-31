@@ -40,9 +40,21 @@ body, html {
 <div class="background">
     <div class="container">
         <!-- Hier kannst du deine Inhalte einfügen -->
-        <h1>Welcome to Udacity Airlines</h1>
-        <p>Please follow the instructions for check in</p>
-        <a href='{% url 'boardingpass' %}' class="btn btn-outline-primary" style="background:white;color:#1b1469;border-color:#1b1469" role="button" >Start process</a>
+        <h1>Boarding pass</h1>
+        <p>Please select your boarding pass</p>
+
+        <form method="post">
+            {% csrf_token %}
+            <select id="selected_blob" name="selected_blob">
+                {% for blob in list_boardingpasses %}
+                    <option value="{{ blob }}">{{ blob }}</option>
+                {% endfor %}
+            </select>
+            <br><br>
+            <button type="submit" class="btn btn-outline-primary" style="background:white;color:#1b1469;border-color:#1b1469" >Next</button>
+
+
+        </form>
 
 
     </div>
