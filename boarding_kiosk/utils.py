@@ -3,6 +3,10 @@ import os
 from azure.ai.formrecognizer import DocumentAnalysisClient
 from azure.ai.formrecognizer import FormRecognizerClient
 from azure.core.credentials import AzureKeyCredential
+from azure.cognitiveservices.vision.customvision.training import CustomVisionTrainingClient
+from azure.cognitiveservices.vision.customvision.prediction import CustomVisionPredictionClient
+from azure.cognitiveservices.vision.customvision.training.models import ImageFileCreateBatch, ImageFileCreateEntry, Region
+from msrest.authentication import ApiKeyCredentials
 import pandas as pd
 connect_str = os.getenv('connect_str')
 container_name = "lab1"  # Der Name deines Containers
@@ -54,6 +58,7 @@ def add_to_session_dict(request, key, value):
     session_dict[key] = value
     
     request.session['session_dict'] = session_dict
+    print(session_dict)
 
 
 def get_id_card_details (id_link):
@@ -105,12 +110,12 @@ def message_passenger(passenger_row):
         f"Your seat number is {df_output.loc[0, 'Seat']} and it is confirmed."
     ]
     
-    if df_output.loc[0, 'Baggage'] == 'No':
-        messages.append('We did not find a prohibited item (lighter) in your carry-on baggage.')
-        messages.append('Thanks for following the procedure.')
-    else:
-        messages.append('We have found a prohibited item in your carry-on baggage, and it is flagged for removal.')
-    messages.append('Your identity could not be verified. Please see a customer service representative.')
+    #if df_output.loc[0, 'Baggage'] == 'No':
+    #    messages.append('We did not find a prohibited item (lighter) in your carry-on baggage.')
+    #    messages.append('Thanks for following the procedure.')
+    #else:
+    #    messages.append('We have found a prohibited item in your carry-on baggage, and it is flagged for removal.')
+    #messages.append('Your identity could not be verified. Please see a customer service representative.')
     
     return "\n".join(messages)
 
@@ -213,12 +218,37 @@ def validation_boardingpass_id(boardingpass, id_card):
     return validation_boardingpass_id_status
 
 
+def luggage_check(suitcase):
+    if suitcase == 'https://aicourselab1.blob.core.windows.net/lab1/suitcases/no_luggage.png':
+        message = ['We did not find a prohibited item (lighter) in your carry-on baggage. Thanks for following the procedure']
+    else:
+        suitcase = suitcase[48:]
+        # prediction ressources
+        PREDICTION_ENDPOINT = os.getenv('PREDICTION_ENDPOINT')
+        #https://www.customvision.ai/
+        prediction_key = os.getenv('prediction_key')
+        #  custom vision - gearwheel - prediction ressources
+        prediction_resource_id = os.getenv('prediction_resource_id')
+        prediction_credentials = ApiKeyCredentials(in_headers={"Prediction-key": prediction_key})
+        predictor = CustomVisionPredictionClient(PREDICTION_ENDPOINT, prediction_credentials)
+        project_id = '3bfe4c00-0957-4030-aef1-5992ff7dce36'
+        publish_iteration_name = 'Iteration2'
+        blob_client = container_client.get_blob_client(suitcase)
+        download_stream = blob_client.download_blob()
+        file_content = download_stream.readall()
+        results = predictor.detect_image(project_id, publish_iteration_name, file_content)
+        for prediction in results.predictions[0:1]:
+            probability = "\t" + prediction.tag_name +" {0:.2f}%".format(prediction.probability * 100)
+        message = f"We found a forbidden item in your luggage: {probability}"
+
+    return message
 
 
-def process_person_documents(id, boardingpass, flight_manifest):
+def process_person_documents(id, boardingpass, flight_manifest, suitcase):
     validation_name_status = 0
     id_link = id
     boarding_pass_link = boardingpass
+    suitcase = suitcase
     
     #------ 3 Way name validation, DoB Validation, Boarding Pass Validation ------
     ## validation_name_status = int for 2 step process
@@ -250,6 +280,16 @@ def process_person_documents(id, boardingpass, flight_manifest):
         if not matched_rows_name.empty:
             flight_manifest.loc[mask_name, 'NameValidation'] = True
             passenger_row = flight_manifest.loc[mask_name].reset_index()
-            return message_passenger(passenger_row)
+            message_luggage = luggage_check(suitcase)
+            message = message_passenger(passenger_row)
+
+            messages = [
+                message,
+                message_luggage,
+                'Your identity could not be verified. Please see a customer service representative.'
+            ]
+            final_message = "\n".join(messages)
+    
+            return final_message
             
-  
+    

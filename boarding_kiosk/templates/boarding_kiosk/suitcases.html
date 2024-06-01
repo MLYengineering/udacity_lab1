@@ -40,21 +40,25 @@ body, html {
 <div class="background">
     <div class="container">
         <!-- Hier kannst du deine Inhalte einfügen -->
-        <h1>ID card </h1>
-        <p>Please select your id card</p>
-
-        <form method="post">
-            {% csrf_token %}
-            <select id="selected_blob" name="selected_blob">
-                {% for blob in list_idcards %}
-                    <option value="{{ blob }}">{{ blob }}</option>
+        <h1>Luggage check</h1>
+        <p>Please select your luggage or the left icon for none</p>
+      
+      
+            
+            <form method="post">
+                {% csrf_token %}
+                {% for blob in list_suitcases %}
+            
+                        <input type="radio" id="{{ forloop.counter }}" name="selected_suitcase" value="{{ blob }}" required>
+                        <label for="{{ forloop.counter }}">
+                            <img src="{{ blob }}" width="200" height="200">
+                        </label>
+                   
                 {% endfor %}
-            </select>
-            <br><br>
-            <button type="submit" class="btn btn-outline-primary" style="background:white;color:#1b1469;border-color:#1b1469" >Next</button>
+                <button type="submit" class="btn btn-outline-primary" style="background:white;color:#1b1469;border-color:#1b1469" >Start verfication process (take some minutes)</button>
 
+             </form>
 
-        </form>
 
 
     </div>
