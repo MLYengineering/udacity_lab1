@@ -44,7 +44,7 @@ def idcard(request):
         add_to_session_dict(request, 'id', selected_blob)
         print(request.session.get('session_dict', {}))
         
-        return redirect('luggage')  # Ersetze 'next_view_name' mit dem tatsächlichen View-Namen
+        return redirect('verification')  # Ersetze 'next_view_name' mit dem tatsächlichen View-Namen
   
 
     context = {
@@ -60,10 +60,9 @@ def verification(request):
     request_dict.get('id', None)
     id = request_dict.get('id', None)
     boardingpass = request_dict.get('boardingpass', None)
-    suitcase = request_dict.get('selected_suitcase', None)
     #boardingpass = get_boardingpass_details (request_dict.get('boardingpass', None))
     flight_manifest = get_manifest()
-    message = process_person_documents(id, boardingpass, flight_manifest, suitcase)
+    message = process_person_documents(id, boardingpass, flight_manifest)
 
     context = {
         'blob_url': blob_url,
@@ -71,28 +70,3 @@ def verification(request):
     }
 
     return render(request, 'boarding_kiosk/verification.html', context)
-
-def luggage(request):
-    blob_url = get_blob_url("django/wallpaper.png")
-    list_suitcases= list_blobs_in_subfolder('suitcases/')
-    print(list_suitcases)
-    list_path=[]
-
-    if request.method == 'POST':
-        selected_suitcase = request.POST.get('selected_suitcase')
-        add_to_session_dict(request,'selected_suitcase',selected_suitcase)
-        return redirect('verification')
-
-
-    for i in list_suitcases:
-        print(i)
-        i_path = get_blob_url(i)
-        list_path.append(i_path)
-
-    print(list_path)
-    context = {
-         'blob_url': blob_url,
-        'list_suitcases': list_path
-    }
-
-    return render(request, 'boarding_kiosk/suitcases.html', context)

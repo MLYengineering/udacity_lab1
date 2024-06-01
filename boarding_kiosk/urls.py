@@ -5,6 +5,5 @@ urlpatterns = [
     path('', views.indexView, name='index'),
     path('boardingpass/',views.boardingpass, name ='boardingpass'),
     path('idcard/',views.idcard, name ='idcard'),
-    path('verification/',views.verification, name ='verification'),
-    path('luggage/',views.luggage,name='luggage')
+    path('verification/',views.verification, name ='verification')
 	]
